@@ -14,7 +14,7 @@
             <hr>
             <p>{{ post.content }}</p>
 
-            <a class="btn btn-primary" href="{{ post.get_absolute_path }}">Edit</a>
-            <a class="btn btn-danger" href="{{ post.get_absolute_path }}">Delete</a>
+            <a class="btn btn-primary" href="{% url "post:edit" post.id %}">Edit</a>
+            <a class="btn btn-danger" href="{% url "post:delete" post.id %}">Delete</a>
     </div>
 {% endblock %}

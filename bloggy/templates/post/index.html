@@ -1,26 +1,47 @@
 {% extends "__base.html" %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-8">
-        {% for post in posts %}
-            <h2>
-                <a href="#">{{ post.title }}</a>
-            </h2>
+    <div class="row">
+        <div class="col-md-8">
 
-            <p>
-                <span class="glyphicon glyphicon-time"></span> Posted on {{ post.created }}
-            </p>
-            <hr>
+            {% for post in posts %}
+                <h2>
+                    <a href="#">{{ post.title }}</a>
+                </h2>
 
-            <img class="img-responsive" src="http://placehold.it/900x300" alt="">
-            <hr>
+                <p>
+                    <span class="glyphicon glyphicon-time"></span> Posted on {{ post.created }}
+                </p>
+                <hr>
 
-            <p>{{ post.content }}</p>
-            <a class="btn btn-primary" href="{{ post.get_absolute_url }}">Read More <span class="glyphicon glyphicon-chevron-right"></span></a>
-            <hr>
-        {% endfor %}
+                <img class="img-responsive" src="http://placehold.it/900x300" alt="">
+                <hr>
+
+                <p>{{ post.content }}</p>
+                <a class="btn btn-primary" href="{{ post.get_absolute_url }}">Read More <span class="glyphicon glyphicon-chevron-right"></span></a>
+                <hr>
+            {% endfor %}
+
+            <div class="pagination">
+                <span class="step-links">
+                    <nav>
+                        <ul class="pager">
+                    {% if posts.has_previous %}
+                        <li><a href="?page={{ posts.previous_page_number }}">previous</a></li>
+                    {% endif %}
+
+                    <span class="current">
+                        Page {{ posts.number }} of {{ posts.paginator.num_pages }}.
+                    </span>
+
+                    {% if posts.has_next %}
+                        <li><a href="?page={{ posts.next_page_number }}">next</a></li>
+                    {% endif %}
+                        </ul>
+                    </nav>
+                </span>
+            </div>
+        </div>
     </div>
-</div>
 
 {% endblock %}
