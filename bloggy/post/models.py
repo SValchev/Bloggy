@@ -8,5 +8,6 @@ class Post(models.Model):
     content = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
 
-    def get_absolute_path(self):
+    # This can be used in reverse()
+    def get_absolute_url(self):
         return reverse('post:info', kwargs={'id':self.id})
