@@ -1,32 +1,42 @@
-from django.shortcuts import render, get_object_or_404, HttpResponseRedirect, redirect
-from django.http import Http404
-from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db import transaction
+from django.core.urlresolvers import reverse
 from django.contrib import messages
-
+from django.db import transaction
+from django.http import Http404
+from django.shortcuts import render, get_object_or_404, HttpResponseRedirect, redirect
+from django.views.generic import ListView
 
 from .models import Post
 from .forms import PostForm
 
 
-def list_posts(request):
-    all_posts = Post.objects.all().order_by('-created')
-    paginator = Paginator(all_posts, 3)
-    page = request.GET.get('page')
+class CustomListView(ListView):
+    template_name = 'post/index.html'
+    model = Post
+    ordering = '-created'
 
-    try:
-        posts = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        posts = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        posts = paginator.page(paginator.num_pages)
+    def get_context_data(self, **kwargs):
+        context = super(CustomListView, self).get_context_data(**kwargs)
+        context['posts'] = self.get_queryset()
+        return context
 
-    context = {'posts':posts}
-
-    return render(request, 'post/index.html', context)
+# def list_posts(request):
+#     all_posts = Post.objects.all().order_by('-created')
+#     paginator = Paginator(all_posts, 3)
+#     page = request.GET.get('page')
+#
+#     try:
+#         posts = paginator.page(page)
+#     except PageNotAnInteger:
+#         # If page is not an integer, deliver first page.
+#         posts = paginator.page(1)
+#     except EmptyPage:
+#         # If page is out of range (e.g. 9999), deliver last page of results.
+#         posts = paginator.page(paginator.num_pages)
+#
+#     context = {'posts':posts}
+#
+#     return render(request, 'post/index.html', context)
 
 def listing(request):
     contact_list = Contacts.objects.all()
