@@ -1,102 +1,48 @@
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.http import Http404
 from django.shortcuts import render, get_object_or_404, HttpResponseRedirect, redirect
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView, DeleteView, CreateView, UpdateView
 
 from .models import Post
 from .forms import PostForm
 
 
-class CustomListView(ListView):
+class PostListView(ListView):
     template_name = 'post/index.html'
     model = Post
+    context_object_name = 'posts'
     ordering = '-created'
-
-    def get_context_data(self, **kwargs):
-        context = super(CustomListView, self).get_context_data(**kwargs)
-        context['posts'] = self.get_queryset()
-        return context
-
-# def list_posts(request):
-#     all_posts = Post.objects.all().order_by('-created')
-#     paginator = Paginator(all_posts, 3)
-#     page = request.GET.get('page')
-#
-#     try:
-#         posts = paginator.page(page)
-#     except PageNotAnInteger:
-#         # If page is not an integer, deliver first page.
-#         posts = paginator.page(1)
-#     except EmptyPage:
-#         # If page is out of range (e.g. 9999), deliver last page of results.
-#         posts = paginator.page(paginator.num_pages)
-#
-#     context = {'posts':posts}
-#
-#     return render(request, 'post/index.html', context)
-
-def listing(request):
-    contact_list = Contacts.objects.all()
-    paginator = Paginator(contact_list, 25) # Show 25 contacts per page
-
-    page = request.GET.get('page')
-    try:
-        contacts = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        contacts = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        contacts = paginator.page(paginator.num_pages)
-
-    return render(request, 'list.html', {'contacts': contacts})
-
-def edit_post(request, id=None):
-    current_post = get_object_or_404(Post, id=id)
-    form = PostForm(request.POST or None, instance=current_post)
-    if request.method == 'POST':
-        if form.is_valid():
-            with transaction.atomic():
-                post = form.save(commit=False)
-                post.save()
-                messages.success(request, "Post has been updated successfuly!")
-                return redirect(post)
-            return HttpResponse("Something went wrong", status_code=400)
-    context = {'form':form}
-    return render(request, 'post/add.html', context)
+    paginate_by = 2
 
 
-def info_post(request, id=None):
-    current_post = get_object_or_404(Post, id=id)
-    context = {'post':current_post}
+class PostUpdateView(LoginRequiredMixin, UpdateView):
+    template_name = 'post/add.html'
+    form_class = PostForm
+    model = Post
+    pk_url_kwarg = 'id'
 
-    return render(request, 'post/info.html', context)
 
-def delete_post(request, id=None):
-    current_post = None
-    try:
-        current_post = Post.objects.get(id=id)
-        with transaction.atomic():
-            current_post.delete()
-            messages.success(request, "You have deleted the post successfuly")
-            return redirect(reverse("post:index"))
-        return HttpResponse("Could not delete the post!", status_code=400)
-    except Post.DoesNotExist:
-        messages.warning(request, "Post does not exists!")
-        return redirect(reverse("post:index"))
+class PostDetailView(DetailView):
+    template_name = 'post/info.html'
+    model = Post
+    queryset = None
+    context_object_name = 'post'
+    pk_url_kwarg = 'id'
 
-def add_post(request):
-    form = PostForm(request.POST or None)
-    if request.method == 'POST':
-        if form.is_valid():
-            with transaction.atomic():
-                post = form.save(commit=False)
-                post.save()
-                messages.success(request, "Post has been added successfuly!")
-                return redirect(post)
-            return HttpResponse("Something went wrong", status_code=400)
-    context = {'form':form}
-    return render(request, 'post/add.html', context)
+
+class PostDeleteView(LoginRequiredMixin, DeleteView):
+    model = Post
+    pk_url_kwarg = 'id'
+    success_url = reverse_lazy('post:index')
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
+
+
+class PostCreateView(LoginRequiredMixin, CreateView):
+    template_name = 'post/add.html'
+    form_class = PostForm

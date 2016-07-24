@@ -1,12 +1,32 @@
 from django.conf.urls import url
 
-from .views import CustomListView
+from .views import PostListView, PostDetailView, PostDeleteView, PostCreateView, PostCreateView
 from . import views
 
 urlpatterns = [
-    url(r'^$', CustomListView.as_view(), name='index'),
-    url(r'(?P<id>\d+)/edit/$', views.edit_post,name='edit'),
-    url(r'(?P<id>\d+)/delete/$', views.delete_post,name='delete'),
-    url(r'add/$', views.add_post,name='add'),
-    url(r'(?P<id>\d+)/$', views.info_post,name='info'),
+    url(
+        regex=r'^$',
+        view=PostListView.as_view(),
+        name='index'
+    ),
+    url(
+        regex=r'(?P<id>\d+)/edit/$',
+        view=PostCreateView.as_view(),
+        name='edit'
+     ),
+    url(
+        regex=r'(?P<id>\d+)/delete/$',
+        view=PostDeleteView.as_view(),
+        name='delete'
+    ),
+    url(
+        regex=r'add/$',
+        view=PostCreateView.as_view(),
+        name='add'
+    ),
+    url(
+        regex=r'(?P<id>\d+)/$',
+        view=PostDetailView.as_view(),
+        name='info'
+    ),
 ]

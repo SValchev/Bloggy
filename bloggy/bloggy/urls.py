@@ -17,6 +17,16 @@ from django.conf.urls import url, include
 from django.contrib import admin
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'^post/', include('post.urls', namespace='post'))
+    url(
+        regex=r'^admin/',
+        view=admin.site.urls
+    ),
+    url(
+        regex=r'^post/',
+        view=include('post.urls', namespace='post')
+    ),
+    url(
+        regex=r'^',
+        view=include('user.urls', namespace='user')
+    ),
 ]
